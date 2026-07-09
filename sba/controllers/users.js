@@ -1,9 +1,15 @@
 import express from "express";
-import Users from "../models/user.js";
+import User from "../models/user.js";
 
 export const getAllUsers = async (req, res) => {
   try {
-    res.status(200).json("your data");
+    const users = await User.find({ createdAt: -1 });
+
+    if (!users) {
+      return res.status(404).json({ message: "Users not found" });
+    }
+
+    res.status(200).json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
