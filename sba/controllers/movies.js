@@ -15,10 +15,6 @@ export const getTenMovies = async (req, res) => {
   try {
     const movies = await Movie.find().limit(10);
 
-    if (!movies) {
-      return res.status(404).json({ message: "Movies not found" });
-    }
-
     res.status(200).json(movies);
   } catch (error) {
     res.status(500).json({ message: error.message });
