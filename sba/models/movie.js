@@ -1,7 +1,10 @@
 import mongoose from "mongoose";
 
 const movieSchema = new mongoose.Schema({
-  plot: String,
+  plot: {
+    type: String,
+    required: true,
+  },
   genres: [String],
   runtime: Number,
   cast: [String],
@@ -13,7 +16,7 @@ const movieSchema = new mongoose.Schema({
   },
   fullplot: String,
   languages: [String],
-  released: { type: Date, default: new Date() },
+  released: { type: Date, default: Date.now, required: true },
   directors: [String],
   writers: [String],
   awards: {
@@ -40,12 +43,16 @@ const movieSchema = new mongoose.Schema({
   type: String,
   tomatoes: {
     viewer: {
-      rating: Number,
+      rating: {
+        type: Number,
+        min: 0,
+        max: 100,
+      },
       numReviews: Number,
       meter: Number,
     },
     production: String,
-    lastUpdated: { type: Date, default: new Date() },
+    lastUpdated: { type: Date, default: Date.now },
   },
   num_mflix_comments: Number,
 });
