@@ -11,9 +11,9 @@ export const createMovie = async (req, res) => {
   }
 };
 
-export const getAllMovies = async (req, res) => {
+export const getTenMovies = async (req, res) => {
   try {
-    const movies = await Movie.find({ createdAt: -1 });
+    const movies = await Movie.find().limit(10);
 
     if (!movies) {
       return res.status(404).json({ message: "Movies not found" });
@@ -41,7 +41,9 @@ export const getMovieById = async (req, res) => {
 
 export const updateMovie = async (req, res) => {
   try {
-    const movie = await Movie.findByIdAndUpdate(req.params.id);
+    const movie = await Movie.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
 
     if (!movie) {
       return res.status(404).json({ message: "Movie not found" });

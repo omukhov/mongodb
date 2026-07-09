@@ -20,7 +20,15 @@ const commentSchema = new mongoose.Schema({
   date: {
     type: Date,
     required: true,
+    default: Date.now,
   },
+});
+
+commentSchema.index({ name: 1 });
+commentSchema.index({ email: 1 });
+commentSchema.index({
+  movie_id: 1,
+  date: -1,
 });
 
 export default mongoose.model("Comment", commentSchema, "comments");

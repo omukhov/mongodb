@@ -15,4 +15,7 @@ const usersSchema = new mongoose.Schema({
   },
 });
 
+usersSchema.index({ name: 1 });
+usersSchema.index({ email: 1 });
+
 export default mongoose.model("User", usersSchema, "users");

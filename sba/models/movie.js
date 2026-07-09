@@ -5,7 +5,12 @@ const movieSchema = new mongoose.Schema({
   genres: [String],
   runtime: Number,
   cast: [String],
-  title: String,
+  title: {
+    type: String,
+    required: true,
+    minlength: 1,
+    maxlength: 200,
+  },
   fullplot: String,
   languages: [String],
   released: { type: Date, default: new Date() },
@@ -17,9 +22,17 @@ const movieSchema = new mongoose.Schema({
     text: String,
   },
   lastupdated: String,
-  year: Number,
+  year: {
+    type: Number,
+    min: 1800,
+    max: new Date().getFullYear(),
+  },
   imdb: {
-    rating: Number,
+    rating: {
+      type: Number,
+      min: 0,
+      max: 10,
+    },
     votes: Number,
     id: Number,
   },
@@ -36,5 +49,10 @@ const movieSchema = new mongoose.Schema({
   },
   num_mflix_comments: Number,
 });
+
+movieSchema.index({ title: 1 });
+movieSchema.index({ year: 1 });
+movieSchema.index({ genres: 1 });
+movieSchema.index({ "imdb.rating": -1 });
 
 export default mongoose.model("Movie", movieSchema, "movies");

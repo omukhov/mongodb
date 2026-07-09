@@ -1,9 +1,9 @@
 import express from "express";
 import Comment from "../models/comment.js";
 
-export const getAllComments = async (req, res) => {
+export const getTenComments = async (req, res) => {
   try {
-    const comments = await Comment.find({ createdAt: -1 });
+    const comments = await Comment.find().limit(10);
 
     if (!comments) {
       return res.status(404).json({ message: "Comments not found" });
