@@ -1,6 +1,7 @@
 import express from "express";
 import Movie from "../models/movie.js";
 
+// Create movie function
 export const createMovie = async (req, res) => {
   try {
     const movie = await Movie.create(req.body);
@@ -11,6 +12,7 @@ export const createMovie = async (req, res) => {
   }
 };
 
+// Get 10 first movies
 export const getTenMovies = async (req, res) => {
   try {
     const movies = await Movie.find().limit(10);
@@ -21,6 +23,7 @@ export const getTenMovies = async (req, res) => {
   }
 };
 
+// Get movie by id
 export const getMovieById = async (req, res) => {
   try {
     const movie = await Movie.findById(req.params.id);
@@ -35,6 +38,7 @@ export const getMovieById = async (req, res) => {
   }
 };
 
+// Update movie by id
 export const updateMovie = async (req, res) => {
   try {
     const movie = await Movie.findByIdAndUpdate(req.params.id, req.body, {
@@ -51,6 +55,7 @@ export const updateMovie = async (req, res) => {
   }
 };
 
+// Delete movie by id
 export const deleteMovie = async (req, res) => {
   try {
     const deletedMovie = await Movie.findByIdAndDelete(req.params.id);

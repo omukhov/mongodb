@@ -1,6 +1,7 @@
 import express from "express";
 import Comment from "../models/comment.js";
 
+// Function for getting first 10 comments
 export const getTenComments = async (req, res) => {
   try {
     const comments = await Comment.find().limit(10);
