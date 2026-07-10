@@ -83,59 +83,213 @@ router.get("/learner/:id/avg-class", async (req, res) => {
 });
 
 router.get("/stats", async (req, res) => {
-  let collection = await db.collection("grades");
+  try {
+    let collection = await db.collection("grades");
 
-  let result = await collection
-    .aggregate([
-      {
-        $unwind: "$scores",
-      },
-      {
-        $group: {
-          _id: "$student_id",
+    let result = await collection
+      .aggregate([
+        {
+          $unwind: "$scores",
+        },
 
-          exam: {
-            $max: {
-              $cond: [
-                {
-                  $eq: ["$scores.type", "exam"],
-                },
-                "$scores.score",
-                null,
-              ],
+        {
+          $group: {
+            _id: "$student_id",
+
+            exam: {
+              $max: {
+                $cond: [
+                  {
+                    $eq: ["$scores.type", "exam"],
+                  },
+                  "$scores.score",
+                  null,
+                ],
+              },
+            },
+
+            quiz: {
+              $max: {
+                $cond: [
+                  {
+                    $eq: ["$scores.type", "quiz"],
+                  },
+                  "$scores.score",
+                  null,
+                ],
+              },
+            },
+
+            homework: {
+              $max: {
+                $cond: [
+                  {
+                    $eq: ["$scores.type", "homework"],
+                  },
+                  "$scores.score",
+                  null,
+                ],
+              },
             },
           },
+        },
 
-          quiz: {
-            $max: {
-              $cond: [
-                {
-                  $eq: ["$scores.type", "quiz"],
-                },
-                "$scores.score",
-                null,
-              ],
-            },
-          },
+        {
+          $limit: 5,
+        },
 
-          homework: {
-            $max: {
-              $cond: [
+        {
+          $project: {
+            weightedAverage: {
+              $add: [
                 {
-                  $eq: ["$scores.type", "homework"],
+                  $multiply: [
+                    {
+                      $ifNull: ["$exam", 0],
+                    },
+                    0.4,
+                  ],
                 },
-                "$scores.score",
-                null,
+                {
+                  $multiply: [
+                    {
+                      $ifNull: ["$quiz", 0],
+                    },
+                    0.2,
+                  ],
+                },
+                {
+                  $multiply: [
+                    {
+                      $ifNull: ["$homework", 0],
+                    },
+                    0.4,
+                  ],
+                },
               ],
             },
           },
         },
-      },
-    ])
-    .toArray();
 
-  if (!result) res.send("Not found").status(404);
-  else res.send(result).status(200);
+        {
+          $match: {
+            weightedAverage: {
+              $gt: 70,
+            },
+          },
+        },
+
+        {
+          $count: "numberOfLearners",
+        },
+      ])
+      .toArray();
+
+    if (result.length === 0) {
+      return res.status(404).send("Not found");
+    } else res.send({ result }).status(200);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+router.get("/grades/stats/:id", async (req, res) => {
+  let collections = await db.collection("grades");
+
+  let result = await collections.aggregate([
+    {
+      $match: {
+        class_id: req.params.id,
+      },
+    },
+
+    {
+      $unwind: "$scores",
+    },
+
+    {
+      $group: {
+        _id: "$student_id",
+
+        exam: {
+          $max: {
+            $cond: [
+              {
+                $eq: ["$scores.type", "exam"],
+              },
+              "$scores.score",
+              null,
+            ],
+          },
+        },
+
+        quiz: {
+          $max: {
+            $cond: [
+              {
+                $eq: ["$scores.type", "quiz"],
+              },
+              "$scores.score",
+              null,
+            ],
+          },
+        },
+
+        homework: {
+          $max: {
+            $cond: [
+              {
+                $eq: ["$scores.type", "homework"],
+              },
+              "$scores.score",
+              null,
+            ],
+          },
+        },
+      },
+    },
+
+    {
+      $project: {
+        weightedAverage: {
+          $add: [
+            {
+              $multiply: [
+                {
+                  $ifNull: ["$exam", 0],
+                },
+                0.4,
+              ],
+            },
+            {
+              $multiply: [
+                {
+                  $ifNull: ["$quiz", 0],
+                },
+                0.2,
+              ],
+            },
+            {
+              $multiply: [
+                {
+                  $ifNull: ["$homework", 0],
+                },
+                0.4,
+              ],
+            },
+          ],
+        },
+      },
+    },
+
+    {
+      $match: {
+        weightedAverage: {
+          $gt: 70,
+        },
+      },
+    },
+  ]);
 });
 
 export default router;
